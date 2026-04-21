@@ -128,12 +128,20 @@ const LoginScreen = () => (
   </div>
 );
 
+// --- Constants ---
+const COUNTRIES = [
+  "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo (Brazzaville)", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czechia", "Democratic Republic of the Congo", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Palestine State", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States of America", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
+];
+
 // --- Profile Form Component ---
 const ProfileCompletion = ({ onComplete, userId, email, displayName }: { onComplete: () => void, userId: string, email: string, displayName: string }) => {
   const [fullName, setFullName] = useState(displayName);
   const [country, setCountry] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const filteredCountries = COUNTRIES.filter(c => c.toLowerCase().includes(country.toLowerCase()));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -156,32 +164,61 @@ const ProfileCompletion = ({ onComplete, userId, email, displayName }: { onCompl
        <div className="p-3 bg-emerald-100 dark:bg-emerald-900/30 rounded-full mb-4">
          <ShieldCheck className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
        </div>
-       <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">व्यक्तिगत विवरण भर्नुहोस्</h2>
-       <p className="text-slate-500 dark:text-slate-400 mb-8 text-[10px] font-black uppercase tracking-[0.2em]">पहिचान सुनिश्चित गर्न र सेवा पहुँच गर्न यो आवश्यक छ</p>
+       <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">Complete Your Profile</h2>
+       <p className="text-slate-500 dark:text-slate-400 mb-8 text-[10px] font-black uppercase tracking-[0.2em]">Required to verify identity and access services</p>
        
        <form onSubmit={handleSubmit} className="w-full space-y-4">
           <div className="space-y-1.5 text-left">
-            <label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-600 pl-1 tracking-widest">पूरा नाम (Full Name)</label>
+            <label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-600 pl-1 tracking-widest">Full Name</label>
             <input 
               required
               value={fullName}
               onChange={e => setFullName(e.target.value)}
-              placeholder="तपाईँको नाम लेख्नुहोस्..."
-              className="w-full p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-slate-700 dark:text-slate-200"
+              placeholder="Enter your full name..."
+              className="w-full p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-slate-700 dark:text-slate-200 shadow-sm"
             />
           </div>
-          <div className="space-y-1.5 text-left text-xs">
-            <label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-600 pl-1 tracking-widest">देश (Country)</label>
+          <div className="space-y-1.5 text-left text-xs relative">
+            <label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-600 pl-1 tracking-widest">Country</label>
             <input 
               required
               value={country}
-              onChange={e => setCountry(e.target.value)}
-              placeholder="तपाईँको देशको नाम..."
-              className="w-full p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-slate-700 dark:text-slate-200"
+              onChange={e => {
+                setCountry(e.target.value);
+                setIsDropdownOpen(true);
+              }}
+              onFocus={() => setIsDropdownOpen(true)}
+              onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
+              placeholder="Search or select country..."
+              className="w-full p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-slate-700 dark:text-slate-200 shadow-sm"
             />
+            <AnimatePresence>
+              {isDropdownOpen && filteredCountries.length > 0 && (
+                <motion.ul
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -5 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute z-10 w-full max-h-48 overflow-y-auto custom-scrollbar bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl mt-1 py-1"
+                >
+                  {filteredCountries.map(c => (
+                    <li
+                      key={c}
+                      onClick={() => {
+                        setCountry(c);
+                        setIsDropdownOpen(false);
+                      }}
+                      className="px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 cursor-pointer text-sm font-medium transition-colors"
+                    >
+                      {c}
+                    </li>
+                  ))}
+                </motion.ul>
+              )}
+            </AnimatePresence>
           </div>
 
-          <div className="bg-slate-100 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 text-left">
+          <div className="bg-slate-100 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 text-left shadow-sm">
             <label className="flex gap-3 cursor-pointer select-none">
               <input 
                 type="checkbox" 
@@ -190,7 +227,7 @@ const ProfileCompletion = ({ onComplete, userId, email, displayName }: { onCompl
                 className="mt-1 w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
               />
               <span className="text-[10px] font-medium text-slate-600 dark:text-slate-400 leading-normal uppercase tracking-tight">
-                म नियम र सर्तहरूसँग सहमत छु। हामी तपाईँको डाटाको गोपनीयता र सुरक्षाको पूर्ण ग्यारेन्टी दिन्छौँ। तपाईँको जानकारीको कहिल्यै पनि दुरुपयोग गरिने छैन।
+                I agree to the Terms & Conditions. We guarantee the privacy and security of your data. Your information will never be misused.
               </span>
             </label>
           </div>
@@ -207,6 +244,7 @@ const ProfileCompletion = ({ onComplete, userId, email, displayName }: { onCompl
     </div>
   );
 };
+
 
 // --- Footer Component ---
 const Footnotes = () => (
